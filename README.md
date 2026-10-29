@@ -1,132 +1,118 @@
 # DevOps Repo Checker
 
-A free tool that scores the DevOps quality of a repository. It reads the files, runs deterministic rules (Docker, Kubernetes, CI/CD, Terraform/AWS, secrets, docs) and shows a score out of 100, a per-category breakdown, a prioritized list ("fix first / worth fixing / lower priority") and an example fix for every problem. Hebrew (RTL) and English.
+![Test and deploy](https://github.com/Kinanw38/devops-repo-checker/actions/workflows/deploy.yml/badge.svg)
 
-No server, no accounts, no API keys, no runtime dependencies. The same rule engine runs in the browser and on the command line.
+Checks the DevOps quality of a repository and gives it a score out of 100, with a prioritized list of problems and an example fix for each one. It covers Docker, Kubernetes, CI/CD, Terraform/AWS, secrets and documentation. Hebrew and English.
 
-<!-- TODO: add a screenshot, e.g. docs/screenshot.png -->
-> Screenshot placeholder
+![DevOps Repo Checker result page](docs/screenshot.png)
 
-**Try it:** `<web demo link, after enabling GitHub Pages>`
+## Try it
 
-## Architecture
+**Web demo:** https://kinanw38.github.io/devops-repo-checker/
+
+Paste the URL of a public GitHub repository and get the result in a few seconds. Nothing to install.
+
+## What you get
+
+| What to fix first | An example fix for every problem |
+|---|---|
+| ![Summary](docs/summary.png) | ![Example fix](docs/fixing.png) |
+
+## Two ways to use it
+
+| | Web demo | Local CLI |
+|---|---|---|
+| What it is | a web page, open it and try | a command you run on your own computer |
+| Scans | a public GitHub repo (by URL) | any folder on your machine, private projects too |
+| Size | light: up to 50 files | the whole project, no file limit |
+| Best for | trying it quickly | an accurate scan, and CI |
+
+Both use exactly the same rules. Nothing you scan is uploaded anywhere: the web demo runs in your browser, the CLI runs on your computer.
+
+## Run it locally
+
+You need [Node.js](https://nodejs.org) 18 or newer. There is nothing else to install.
+
+```bash
+git clone https://github.com/Kinanw38/devops-repo-checker.git
+cd devops-repo-checker
+node cli/index.js /path/to/your/project
+```
+
+Use `.` to scan the current folder (for example `node cli/index.js .` scans this repository itself).
+
+### Options
+
+| Option | What it does |
+|---|---|
+| `--lang he` | print the report in Hebrew (default: English). Many terminals show Hebrew reversed |
+| `--fixes` | also print an example fix for every problem |
+| `--json` | print the result as JSON, for scripts |
+| `--fail-under 70` | exit with an error if the score is below 70 (useful in CI) |
+| `--include-examples` | also check example, test and scenario files (skipped by default) |
+| `--ai` | add a short AI summary using your own local Ollama (optional, see below) |
+
+### Optional: AI summary with Ollama
+
+The AI is optional and runs only on your machine, with no account or API key.
+
+```bash
+ollama pull <a-model-you-like>
+node cli/index.js . --ai --model <a-model-you-like>
+```
+
+Only the names of the failed checks and the score are sent to Ollama, never your code or file names. Ollama is expected at `http://localhost:11434` (set `OLLAMA_HOST` to change it). If it is not running, the normal report is printed anyway.
+
+## How it works
 
 ```mermaid
 flowchart LR
-  subgraph Browser["Public demo (GitHub Pages)"]
-    UI["index.html + app.js"] --> GH["GitHub API<br/>public repos, 50 files"]
-  end
-  subgraph CLI["Local CLI"]
-    C["cli/index.js"] --> FS["Local folder<br/>nothing uploaded"]
-  end
-  UI --> ENGINE
-  C --> ENGINE
-  ENGINE["Shared engine<br/>select.js, rules/, score.js, summary.js"]
-  C -. "--ai (optional)" .-> OLL["Your local Ollama<br/>failed checks + score only"]
+  A[Web demo: GitHub repo URL] --> C[Same rule engine: 27 checks]
+  B[Local CLI: a folder on your computer] --> C
+  C --> D[Score, summary and example fixes]
 ```
 
-## Two ways to run it
+## What it checks (27 rules)
 
-| | Public demo | Local CLI |
-|---|---|---|
-| Runs | in your browser, static files | `node cli/index.js <folder>` |
-| Input | a public GitHub repo URL | any local folder |
-| Limits | public repos, up to 50 files, 100 KB per file, GitHub API rate limit | none (reads the whole folder) |
-| AI | none | optional, your own local Ollama |
+| Area | Checks |
+|---|---|
+| Containers | runs as root, base image version, HEALTHCHECK |
+| Kubernetes | memory limit, resource requests, readinessProbe, non-root, privileged, image version, missing Secret, Service selector that matches no pod |
+| CI/CD | a pipeline exists, runs tests, actions pinned to a version, workflow permissions, security or dependency scan, automated tests exist |
+| Terraform / AWS | security group open to the internet, public S3, IAM `Action: *`, remote state, public EKS endpoint |
+| Security | secrets in code (the value is never shown), committed `.env`, keys and state files |
+| Docs | README, LICENSE, .gitignore |
 
-### Web demo
+Example, test and "problem / fix" scenario files are skipped, because they are usually broken on purpose. To skip a file yourself, put `# devops-checker: ignore` at its top.
 
-Open the demo link above, or serve `public/` yourself:
+## Limits
 
-```bash
-npm run dev    # python3 -m http.server 8000 --directory public
-```
-
-### Local CLI (Node 18 or newer, nothing to install)
-
-```bash
-git clone <this repo>
-cd devops-repo-checker
-node cli/index.js .
-```
-
-```
-node cli/index.js <folder> [--lang en|he] [--json] [--fixes] [--include-examples] [--fail-under N] [--ai [--model NAME]]
-```
-
-- `--lang en|he`: report language (default `en`; Hebrew shows reversed in many terminals)
-- `--json`: machine-readable result (no file contents)
-- `--fixes`: print an example fix under each problem
-- `--include-examples`: also check `tests/`, `examples/` and intentionally broken files
-- `--fail-under N`: exit with code 1 if the score is below N (use it as a CI gate)
-
-The project checks itself in CI: `node cli/index.js . --fail-under 70`.
-
-### Optional AI summary with Ollama (`--ai`)
-
-The AI is never required. With [Ollama](https://ollama.com) running on your machine:
-
-```bash
-ollama pull llama3.2
-node cli/index.js . --ai                  # uses the first installed model
-node cli/index.js . --ai --model llama3.2
-```
-
-Only the failed checks (their English text, severity, number of files) and the score are sent, to `http://localhost:11434` or `OLLAMA_HOST`. File names and file contents are never sent. If Ollama is not running, you get one line explaining it and the normal report continues.
-
-## Rules (27)
-
-Score: severity weights high 3, medium 2, low 1; category weights security 30, containers 20, CI/CD 20, IaC 20, Kubernetes 20, docs 10. Categories without files are not penalized.
-
-| Rule | Category | Severity | Checks that... |
-|---|---|---|---|
-| `docker-user-root` | containers | high | the container does not run as root |
-| `docker-latest` | containers | med | the base image has a fixed version |
-| `docker-healthcheck` | containers | low | a HEALTHCHECK exists |
-| `k8s-memory-limit` | kubernetes | med | containers have memory limits |
-| `k8s-requests` | kubernetes | low | resource requests exist |
-| `k8s-readiness` | kubernetes | med | a readinessProbe exists |
-| `k8s-nonroot` | kubernetes | med | containers run as non-root |
-| `k8s-privileged` | kubernetes | high | no privileged / host access |
-| `k8s-latest` | kubernetes | med | images have a fixed version |
-| `k8s-secret-ref` | kubernetes | low | referenced Secrets are defined |
-| `k8s-service-selector` | kubernetes | med | Service selectors match Pod labels |
-| `ci-exists` | cicd | med | a CI/CD pipeline exists |
-| `ci-tests` | cicd | med | the pipeline runs tests or validation |
-| `ci-pinned-actions` | cicd | med | Actions are pinned to a version |
-| `ci-permissions` | cicd | low | the workflow defines permissions |
-| `ci-security` | cicd | med | a security or dependency scan exists |
-| `tests-exist` | cicd | med | automated tests exist |
-| `tf-open-ingress` | iac | high | no security group open to 0.0.0.0/0 |
-| `tf-public-s3` | iac | high | S3 buckets are not public |
-| `tf-iam-wildcard` | iac | high | no IAM `Action: *` |
-| `tf-remote-state` | iac | low | Terraform uses a remote backend |
-| `tf-eks-public` | iac | med | the EKS endpoint is restricted |
-| `secrets-in-code` | security | high | no secrets in code (value never shown) |
-| `committed-secret-files` | security | high | no `.env`, keys or `tfstate` committed |
-| `docs-readme` | docs | low | a README exists |
-| `docs-license` | docs | low | a LICENSE exists |
-| `docs-gitignore` | docs | low | a .gitignore exists |
-
-## Limitations
-
-- The web demo reads public repositories only, up to 50 files and 100 KB per file.
-- Terraform analysis is text based (no HCL parser).
-- Helm templates are skipped.
-- Files in `tests/`, `examples/`, `fixtures/`, `demo/`, `scenarios/`, folders with both a "problem" and a "fix" file, and files marked `# devops-checker: ignore` are skipped, because they are usually broken on purpose. Use "Check them too" or `--include-examples`.
-- Results are a lightweight aid, not a security audit.
+- The web demo works only with public repositories, up to 50 files of up to 100 KB each, and GitHub limits how many requests an unauthenticated visitor can make per hour. For a large project use the local CLI.
+- Terraform is analyzed as text (there is no HCL parser). Helm templates are skipped.
+- The checks are a guide, not a full audit.
 
 ## Disclaimer
 
 This tool is provided "as is" for informational and educational purposes only. It is an aid, not professional advice or a security audit. Scores and suggestions may be incomplete or inaccurate. You are solely responsible for how you use the tool and for any change you make to your project. The author accepts no liability for any damage or loss.
 
-## Adding a rule
+## Run the web page on your computer (for development)
 
-1. Write a function in `public/rules/*.js` that returns `{ id, category, severity, pass, file, detail }` per file (see `hygiene.js` for the smallest example) and add it to that file's exported list.
-2. Add its texts (`fail`, `pass`, `why`) in Hebrew and English to `public/i18n/strings.js`.
-3. Add an example fix to `public/rules/fixes.js`.
-4. If the category is new, add a weight in `public/score.js` and a name in `strings.js` (`categories`).
-5. Add a test in `tests/` and run `npm test`.
+```bash
+npm run dev
+```
+
+Then open http://localhost:8000. This starts a tiny local web server (Python's built-in one) that serves the `public/` folder, so you can try changes to the page before publishing. It needs Python 3 and is only for people who want to modify the web demo. To simply use the tool, open the demo link above or use the CLI.
+
+## Add a rule
+
+1. Write the check as a function in `public/rules/` (see the existing files for the shape: it returns `{ id, category, severity, pass, file }`), and add it to the list in `public/rules/engine.js`.
+2. Add its texts (fail, pass, why) in Hebrew and English in `public/i18n/strings.js`.
+3. Add an example fix in `public/rules/fixes.js`.
+4. Add a test in `tests/` and run `npm test`.
+
+## Tests and CI
+
+`npm test` runs the automated tests. On every push to `main`, GitHub Actions runs the tests, runs this tool on its own code, and publishes the web demo to GitHub Pages.
 
 ## License
 
