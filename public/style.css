@@ -142,6 +142,8 @@ summary { cursor: pointer; color: var(--accent); }
 .paths .more { color: var(--muted); list-style: none; }
 code { font-family: "IBM Plex Mono", Consolas, "Courier New", monospace; font-size: 0.88em; direction: ltr; unicode-bidi: isolate; }
 
+.notice { margin: -4px 0 14px; color: var(--muted); font-size: 0.85rem; }
+.notice a { color: inherit; }
 footer { margin-top: 36px; padding-top: 12px; border-top: 1px solid var(--line); color: var(--muted); }
 @media (max-width: 600px) { .sheet { padding: 18px; } .bar-row { grid-template-columns: 90px 1fr 40px; } }
 @media (prefers-reduced-motion: reduce) {

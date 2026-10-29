@@ -1,6 +1,8 @@
 export const strings = {
   he: {
     intro: "הדביקו קישור לריפו ציבורי ב-GitHub וקבלו ציון DevOps קצר עם המלצות.",
+    notice: "זהו דמו קל שסורק ריפו ציבורי ב-GitHub (עד 50 קבצים). לסריקה מלאה ומדויקת יותר של פרויקט גדול, הריצו את הגרסה המקומית.",
+    noticeLink: "להריץ מקומית",
     scan: "בדיקה",
     scanning: "סורק...",
     placeholder: "https://github.com/user/repo",
@@ -194,6 +196,8 @@ export const strings = {
   },
   en: {
     intro: "Paste a public GitHub repo URL and get a short DevOps score with suggestions.",
+    notice: "This is a lightweight demo that scans public GitHub repos (up to 50 files). For a full, more accurate scan of a large project, run the local version.",
+    noticeLink: "Run it locally",
     scan: "Check",
     scanning: "Scanning...",
     placeholder: "https://github.com/user/repo",

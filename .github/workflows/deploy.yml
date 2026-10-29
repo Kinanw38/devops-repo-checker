@@ -21,6 +21,8 @@ jobs:
         with:
           node-version: 22
       - run: npm test
+      - name: The project checks itself
+        run: node cli/index.js . --fail-under 70
 
   deploy:
     needs: test

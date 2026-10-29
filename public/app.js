@@ -483,7 +483,6 @@ async function scan(options) {
     const progressBox = $("report").querySelector(".progress");
     if (progressBox) { progressBox.classList.add("leaving"); await pause(300); }
 
-    window.lastScan = { parsed, files, findings, score }; // temporary, for checking in the console
     const allSkipped = [...skippedList, ...intentional.map((f) => ({ path: f.path, reason: "example" }))];
     const demoLike = looksLikeDemo(parsed.repo, files);
     state = { type: "summary", files: kept, skipped: allSkipped.length, skippedList: allSkipped, failed, findings, score, demoLike, includedExamples: includeExamples, shown: false };
