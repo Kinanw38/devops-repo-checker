@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DevOps Repo Checker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Heebo:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <script>
+    try {
+      var t = localStorage.getItem("theme") ||
+        (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="sheet">
+    <header>
+      <h1>DevOps Repo Checker</h1>
+      <div class="controls">
+        <button id="theme-toggle" type="button" class="ghost"></button>
+        <button id="lang-toggle" type="button" class="ghost">EN / עב</button>
+      </div>
+    </header>
+    <main>
+      <p data-i18n="intro"></p>
+      <input id="repo-url" type="url" dir="ltr">
+      <button id="scan" type="button" data-i18n="scan"></button>
+      <section id="report" hidden></section>
+    </main>
+    <footer><small data-i18n="disclaimer"></small></footer>
+  </div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
