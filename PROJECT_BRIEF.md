@@ -17,7 +17,7 @@ Owner: Ron, junior DevOps. Goal: a portfolio centerpiece and a LinkedIn post ("I
 
 ## 3. Two modes, one rule engine
 
-| | Public demo (GitHub Pages) | Local CLI (planned) |
+| | Public demo (GitHub Pages) | Local CLI (`cli/`) |
 |---|---|---|
 | Runs | in the visitor's browser, static files | `node cli/index.js <folder>` on your machine |
 | Input | public GitHub repo URL | any local folder, nothing uploaded |
@@ -45,9 +45,11 @@ public/            index.html app.js style.css github.js select.js score.js summ
 public/i18n/       strings.js (he + en)
 public/rules/      engine.js docker.js k8s.js cicd.js terraform.js security.js hygiene.js fixes.js
 public/vendor/     js-yaml.mjs (YAML parser, v4.1.0)
-tests/             rules.test.mjs summary.test.mjs   (run: npm test)
-.github/workflows/ deploy.yml (tests, then deploy public/ to GitHub Pages)
-package.json       scripts: dev (python static server), test (node --test)
+cli/               index.js (folder scan, text/JSON, --fail-under) ai.js (optional local Ollama, --ai)
+tests/             rules.test.mjs summary.test.mjs cli.test.mjs   (run: npm test, Node 18+)
+.github/workflows/ deploy.yml (tests, self-check with the CLI, then deploy public/ to GitHub Pages)
+package.json       scripts: dev (python static server), test (node --test tests/)
+README.md LICENSE (MIT) .gitignore
 ```
 
 Adding a rule = a function in `public/rules/*.js` + texts in `strings.js` (he/en: fail, pass, why) + an example in `fixes.js` + (if new) a category weight in `score.js`.
@@ -73,11 +75,11 @@ Plain, slightly old-school report look: cream paper, one accent color, Heebo for
 - [x] 27 rules, example fixes, score ring, category bars, prioritized findings, summary
 - [x] Hebrew/English with RTL, dark mode
 - [x] Unit tests (npm test) and a CI + Pages workflow file
-- [ ] 1. Public-mode notice in the UI ("demo, public repos, up to 50 files; for a full scan use the local CLI")
-- [ ] 2. Local CLI: scan a folder with the same engine, text/JSON output, `--lang`, `--fail-under`, optional `--ai` via local Ollama
-- [ ] 3. Use the CLI in the project's own CI (the tool checks itself) and add a badge
-- [ ] 4. README: what it is, screenshots or a short GIF, architecture diagram, how to run both modes, limitations, what was found on the owner's EKS project
-- [ ] 5. One review with Claude Code (review only), fix the blockers
+- [x] 1. Public-mode notice in the UI ("demo, public repos, up to 50 files; for a full scan use the local CLI"). Its "Run it locally" link still points to https://github.com/ (placeholder, `public/index.html`)
+- [x] 2. Local CLI: scan a folder with the same engine, text/JSON output, `--lang`, `--fail-under`, optional `--ai` via local Ollama
+- [ ] 3. Use the CLI in the project's own CI (done: `--fail-under 70` step in deploy.yml) and add a badge (open)
+- [ ] 4. README (done: what it is, diagram, both modes, rules, limitations). Open: screenshot or GIF, demo link, what was found on the owner's EKS project
+- [x] 5. One review with Claude Code (review only), fix the blockers
 - [ ] 6. Run on the EKS project, fix the findings, run again (before/after), LinkedIn post, CV update
 - [ ] 7. Publish: public GitHub repo, Settings > Pages > Source: GitHub Actions
 

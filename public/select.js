@@ -39,7 +39,7 @@ function priority(path) {
   return 5;
 }
 
-export function selectFiles(tree, { includeExamples = false } = {}) {
+export function selectFiles(tree, { includeExamples = false, maxFiles = MAX_FILES } = {}) {
   const blobs = tree.filter((e) => e.type === "blob"); // files only, not folders
 
   // A scenario folder holds a "problem" file AND a "fix" file side by side.
@@ -63,7 +63,7 @@ export function selectFiles(tree, { includeExamples = false } = {}) {
     else allowed.push(f);
   }
   allowed.sort((a, b) => priority(a.path) - priority(b.path));
-  const selected = allowed.slice(0, MAX_FILES);
-  allowed.slice(MAX_FILES).forEach((f) => skippedList.push({ path: f.path, reason: "limit" }));
+  const selected = allowed.slice(0, maxFiles);
+  allowed.slice(maxFiles).forEach((f) => skippedList.push({ path: f.path, reason: "limit" }));
   return { selected, skipped: skippedList.length, skippedList };
 }
