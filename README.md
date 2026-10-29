@@ -5,6 +5,7 @@
 Checks the DevOps quality of a repository and gives it a score out of 100, with a prioritized list of problems and an example fix for each one. It covers Docker, Kubernetes, CI/CD, Terraform/AWS, secrets and documentation. Hebrew and English.
 
 ![DevOps Repo Checker result page](docs/screenshot.png)
+![Demo](docs/demo.gif)
 
 ## Try it
 
