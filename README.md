@@ -54,6 +54,7 @@ Use `.` to scan the current folder (for example `node cli/index.js .` scans this
 | `--ai` | add a short AI summary using your own local Ollama (optional, see below) |
 
 ### Optional: AI summary with Ollama
+> **Status: experimental.** The Ollama integration is covered by automated tests with a mock server, but has not been verified against every model. The normal report never depends on it.
 
 The AI is optional and runs only on your machine, with no account or API key.
 
